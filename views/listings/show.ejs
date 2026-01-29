@@ -1,0 +1,167 @@
+<% layout("/layouts/boilerplates") -%>
+
+<div class="container mt-4 mb-5">
+
+  <div class="row justify-content-center">
+    <div class="col-lg-9 col-md-10">
+
+      <!-- ================= LISTING CARD ================= -->
+      <div class="card shadow border-0 rounded-4">
+
+        <img 
+          src="<%= listing.image.url %>" 
+          class="card-img-top rounded-top-4"
+          style="height:420px; object-fit:cover;"
+        >
+
+        <div class="card-body px-4 py-4">
+
+          <h3 class="fw-bold"><%= listing.title %></h3>
+
+          <p class="text-muted mb-2">
+            Hosted by <b>@<%= listing.owner.username %></b>
+          </p>
+
+          <p><%= listing.description %></p>
+
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge bg-light text-dark border">
+              📍 <%= listing.location %>, <%= listing.country %>
+            </span>
+            <span class="badge bg-dark">
+              ₹ <%= listing.price.toLocaleString("en-IN") %> / night
+            </span>
+          </div>
+
+          <!-- OWNER OR BOOK BUTTON -->
+          <div class="d-flex gap-2 mb-3">
+
+            <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+
+              <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-danger px-4">
+                Edit
+              </a>
+
+              <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+                <button class="btn btn-dark px-4">Delete</button>
+              </form>
+
+            <% } else { %>
+
+              <a href="/book/<%= listing._id %>" class="btn btn-danger px-5">
+                Book Now
+              </a>
+
+            <% } %>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= MAP SECTION ================= -->
+      <% if (listing.lat && listing.lng) { %>
+      <div class="card shadow-sm border-0 mt-4 rounded-4">
+        <div class="card-body px-4">
+
+          <h5 class="fw-bold mb-2">Where you'll be</h5>
+
+          <div id="map" style="height:300px; border-radius:14px;"></div>
+
+        </div>
+      </div>
+      <% } %>
+
+      <!-- ================= REVIEW FORM ================= -->
+      <div class="card mt-4 shadow-sm border-0 rounded-4">
+        <div class="card-body px-4">
+
+          <h5 class="fw-bold mb-3">Leave a Review</h5>
+
+          <% if (currUser) { %>
+
+          <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
+
+            <div class="mb-3">
+              <label class="form-label">Rating</label>
+
+              <fieldset class="starability-slot">
+                <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked />
+                <input type="radio" id="rate1" name="review[rating]" value="1" />
+                <label for="rate1">1</label>
+                <input type="radio" id="rate2" name="review[rating]" value="2" />
+                <label for="rate2">2</label>
+                <input type="radio" id="rate3" name="review[rating]" value="3" />
+                <label for="rate3">3</label>
+                <input type="radio" id="rate4" name="review[rating]" value="4" />
+                <label for="rate4">4</label>
+                <input type="radio" id="rate5" name="review[rating]" value="5" />
+                <label for="rate5">5</label>
+              </fieldset>
+            </div>
+
+            <div class="mb-3">
+              <textarea
+                name="review[comment]"
+                class="form-control"
+                rows="3"
+                placeholder="Write your experience..."
+                required></textarea>
+              <div class="invalid-feedback">
+                Please enter your review
+              </div>
+            </div>
+
+            <button class="btn btn-danger">Submit Review</button>
+
+          </form>
+
+          <% } else { %>
+            <p class="text-muted">Login to leave a review.</p>
+          <% } %>
+
+        </div>
+      </div>
+
+      <!-- ================= ALL REVIEWS ================= -->
+      <div class="mt-4">
+
+        <h5 class="fw-bold mb-3">All Reviews</h5>
+
+        <div class="row g-3">
+
+          <% for (let review of listing.reviews) { %>
+
+            <div class="col-md-6">
+              <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                  <h6 class="fw-bold mb-1">@<%= review.author.username %></h6>
+
+                  <p class="starability-result mb-2" data-rating="<%= review.rating %>"></p>
+
+                  <p class="mb-2"><%= review.comment %></p>
+
+                  <% if (currUser && review.author._id.equals(currUser._id)) { %>
+                  <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                  </form>
+                  <% } %>
+
+                </div>
+
+              </div>
+            </div>
+
+          <% } %>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= LEAFLET MAP (FREE) ================= -->

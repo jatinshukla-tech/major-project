@@ -1,0 +1,40 @@
+<div class="container mt-3 mb-3">
+
+  <div class="d-flex justify-content-between text-center flex-wrap gap-3">
+
+    <% const categories = [
+      { name: "Amazing Views", icon: "fa-mountain" },
+      { name: "Trending", icon: "fa-fire" },
+      { name: "Bed & Breakfasts", icon: "fa-mug-hot" },
+      { name: "Boat", icon: "fa-ship" },
+      { name: "Farms", icon: "fa-tractor" },
+      { name: "Arctic", icon: "fa-snowflake" },
+      { name: "Camping", icon: "fa-tent" },
+      { name: "Amazing Pools", icon: "fa-water-ladder" },
+      { name: "Castles", icon: "fa-chess-rook" }
+    ]; %>
+
+    <% categories.forEach(cat => { %>
+
+      <a 
+        href="/listings?category=<%= encodeURIComponent(cat.name) %>" 
+        class="text-decoration-none text-dark category-link"
+      >
+
+        <div class="d-flex flex-column align-items-center px-2">
+
+          <i class="fa-solid <%= cat.icon %> fs-5 mb-1"></i>
+
+          <small class="<%= (typeof category !== 'undefined' && category === cat.name) ? 'fw-bold text-danger' : '' %>">
+            <%= cat.name %>
+          </small>
+
+        </div>
+
+      </a>
+
+    <% }) %>
+
+  </div>
+
+</div>

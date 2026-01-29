@@ -1,0 +1,67 @@
+<% layout("/layouts/boilerplates") -%>
+
+<div class="container mt-4 mb-5">
+
+  <h4 class="fw-bold mb-4">My Bookings</h4>
+
+  <% if (bookings.length === 0) { %>
+
+    <div class="text-center text-muted mt-5">
+      <h6>No bookings yet</h6>
+      <a href="/listings" class="btn btn-outline-dark mt-3">Explore stays</a>
+    </div>
+
+  <% } else { %>
+
+  <div class="row g-4">
+
+    <% for (let b of bookings) { %>
+
+      <div class="col-lg-6 col-md-12">
+
+        <div class="card shadow-sm border-0 h-100">
+
+          <% if (b.listing && b.listing.image) { %>
+            <img 
+              src="<%= b.listing.image.url %>" 
+              class="card-img-top"
+              style="height:220px; object-fit:cover;"
+            >
+          <% } else { %>
+            <div style="height:220px; background:#eee;" 
+                 class="d-flex align-items-center justify-content-center">
+              <span class="text-muted">Listing removed</span>
+            </div>
+          <% } %>
+
+          <div class="card-body">
+
+            <h6 class="fw-bold">
+              <%= b.listing ? b.listing.title : "Listing removed" %>
+            </h6>
+
+            <p class="mb-1">
+              From: <%= new Date(b.checkIn).toDateString() %>
+            </p>
+
+            <p class="mb-1">
+              To: <%= new Date(b.checkOut).toDateString() %>
+            </p>
+
+            <p class="fw-bold mb-0">
+              ₹ <%= Number(b.totalPrice).toLocaleString("en-IN") %>
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    <% } %>
+
+  </div>
+
+  <% } %>
+
+</div>

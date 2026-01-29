@@ -1,0 +1,56 @@
+<% layout("/layouts/boilerplates") -%>
+
+<div class="container mt-4 mb-5">
+
+  <% if (allListings.length === 0) { %>
+
+    <div class="text-center mt-5 text-muted">
+      <h5>No stays found</h5>
+      <p>Try another search or category</p>
+      <a href="/listings" class="btn btn-outline-dark mt-2">View all</a>
+    </div>
+
+  <% } else { %>
+
+  <div class="row g-4 justify-content-start">
+
+    <% for (let listing of allListings) { %>
+
+      <div class="col-lg-4 col-md-6 col-sm-12">
+
+        <a href="/listings/<%= listing._id %>" class="listing-links text-decoration-none">
+
+          <div class="card listing-card h-100 shadow-sm border-0">
+
+            <img 
+              src="<%= listing.image.url %>" 
+              class="card-img-top listing-img" 
+              alt="listing_image"
+            >
+
+            <div class="card-body">
+
+              <p class="card-text mb-1 fw-bold">
+                <%= listing.title %>
+              </p>
+
+              <p class="mb-0 text-dark">
+                ₹ <%= Number(listing.price).toLocaleString("en-IN") %> / night
+                <small class="text-muted tax-info"> +18% GST</small>
+              </p>
+
+            </div>
+
+          </div>
+
+        </a>
+
+      </div>
+
+    <% } %>
+
+  </div>
+
+  <% } %>
+
+</div>

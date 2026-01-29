@@ -1,0 +1,39 @@
+#filter-tax-switch-container {
+    display: inline-flex;
+    margin: 2rem 0;
+}
+
+.filter {
+    display: inline-block;
+    margin: 0 1rem;
+    text-align: center;
+    opacity: 0.75;
+}
+.filter:hover {
+    opacity: initial;
+    cursor: pointer;
+}
+
+.filter small {
+    display: block;
+}
+
+.tax-toggle-container {
+    display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+.tax-toggle-container:hover {
+    border-color: initial;
+}
+
+.form-check-label {
+    font-size: small;
+    font-weight: bold;
+}
+
+.tax-info {
+    display: none;
+}
