@@ -27,6 +27,28 @@ const {isLoggedIn}=require("./middleware.js")
 const MONGO_URL="mongodb://127.0.0.1:27017/wanderlusts";
 const dbUrl=process.env.ATLASDB_URL ;
 
+const store = MongoStore.create({
+  mongoUrl: process.env.ATLASDB_URL,
+  collectionName: "sessions",
+  crypto: {
+    secret: process.env.SESSION_SECRET
+  },
+  touchAfter: 24 * 3600
+});
+
+const sessionConfig = {
+  store,
+  name: "wanderlust.sid",
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  }
+};
+
 main().
 then(()=>{
     console.log("Db connected");
@@ -53,17 +75,6 @@ app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname,"public")));
 
 
-const sessionOption={
-    
-    secret:process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:true,
-    cookie:{
-        expires:Date.now() + 7 *24*60*60*1000,
-        maxAge:7*24*60*60*1000,
-        httpOnly:true,
-    }
-}
 
 
 // app.get('/', (req, res) => {
