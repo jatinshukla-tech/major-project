@@ -1,46 +1,53 @@
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+<nav class="navbar bg-body-light border-bottom sticky-top">
   <div class="container-fluid">
 
+    <!-- Brand -->
     <a class="navbar-brand" href="/listings">
       <i class="fa-regular fa-compass"></i>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-
-      <div class="navbar-nav">
-        <a class="nav-link" href="/listings">Explore</a>
-      </div>
-
-      <% if (currentPath === "/listings") { %>
-<form class="d-flex mx-auto" action="/listings" method="GET" style="width:300px">
-  <input
-    class="form-control me-2"
-    type="search"
-    name="search"
-    placeholder="Search places..."
-    value="<%= typeof search !== 'undefined' ? search : '' %>"
-  />
-  <button class="btn btn-outline-dark" type="submit">Search</button>
-</form>
-<% } %>
-
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/listings/new">Add new Listing</a>
-
-        <% if (!currUser) { %>
-          <a class="nav-link" href="/signup"><b>Sign up</b></a>
-          <a class="nav-link" href="/login"><b>Log in</b></a>
-        <% } %>
-
-        <% if (currUser) { %>
-          <a class="nav-link" href="/logout"><b>Log out</b></a>
-        <% } %>
-      </div>
-
+    <!-- Left links -->
+    <div class="navbar-nav">
+      <a
+        class="nav-link <%= currentPath === '/listings' ? 'active fw-semibold' : '' %>"
+        href="/listings"
+      >
+        Explore
+      </a>
     </div>
+
+    <!-- Search bar (ONLY on /listings) -->
+    <% if (typeof currentPath !== 'undefined' && currentPath === '/listings') { %>
+      <form
+        class="d-flex mx-auto"
+        action="/listings"
+        method="GET"
+        style="width:300px"
+      >
+        <input
+          class="form-control me-2"
+          type="search"
+          name="search"
+          placeholder="Search places..."
+          value="<%= typeof search !== 'undefined' ? search : '' %>"
+        />
+        <button class="btn btn-outline-dark" type="submit">
+          Search
+        </button>
+      </form>
+    <% } %>
+
+    <!-- Right links -->
+    <div class="navbar-nav ms-auto">
+      <a class="nav-link" href="/listings/new">Add new Listing</a>
+
+      <% if (!currUser) { %>
+        <a class="nav-link fw-bold" href="/signup">Sign up</a>
+        <a class="nav-link fw-bold" href="/login">Log in</a>
+      <% } else { %>
+        <a class="nav-link fw-bold" href="/logout">Log out</a>
+      <% } %>
+    </div>
+
   </div>
 </nav>
