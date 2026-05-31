@@ -1,58 +1,86 @@
+const User = require("../model/user.js");
 
-const User=require("../model/user.js");
+// ======================
+// SIGNUP PAGE
+// ======================
 
+const renderSignUp = (req, res) => {
+  res.render("users/signup.ejs");
+};
 
-const renderSignUp=(req,res)=>{
-    res.render("users/signup.ejs")
-}
+// ======================
+// SIGNUP
+// ======================
 
+const signup = async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
 
-const signup=async (req, res) => {
-        try{
-            let {username , email, password} = req.body;
-        const newUser=User({username,email});
-        const registeredUser =await User.register(newUser,password);
-    //    console.log(registeredUser);
-       req.login(registeredUser,(err)=>{
-        if (err) {
-            return next();
-            
-        }
-  req.flash("success","Welcome to Wanderlust")
-    res.redirect("/listings")
-       })
-  
-    }
-        catch(e){
-            req.flash("error", e.message);
-            res.redirect("/signup")
+    const newUser = new User({
+      username,
+      email,
+    });
 
-        }
- 
-}
-const login=(req,res)=>{
-    res.render("users/login.ejs")
-}
+    const registeredUser = await User.register(
+      newUser,
+      password
+    );
 
-const renderLogin=async(req,res)=>{
-        req.flash("success","Welcome back to wanderlust!");
-        let redirectUrl=res.locals.redirectUrl || "listings";
-        res.redirect(redirectUrl);
-
-}
-
-
-
-const logout=(req, res, next)=>{
-    req.logOut((err)=>
-    { if (err) {
+    req.login(registeredUser, (err) => {
+      if (err) {
         return next(err);
-        
+      }
+
+      req.flash("success", "Welcome to Wanderlust!");
+      res.redirect("/listings");
+    });
+
+  } catch (e) {
+    req.flash("error", e.message);
+    res.redirect("/signup");
+  }
+};
+
+// ======================
+// LOGIN PAGE
+// ======================
+
+const renderLogin = (req, res) => {
+  res.render("users/login.ejs");
+};
+
+// ======================
+// LOGIN SUCCESS
+// ======================
+
+const login = async (req, res) => {
+  req.flash("success", "Welcome back to Wanderlust!");
+
+  let redirectUrl =
+    res.locals.redirectUrl || "/listings";
+
+  res.redirect(redirectUrl);
+};
+
+// ======================
+// LOGOUT
+// ======================
+
+const logout = (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
     }
-    req.flash("success","you are loggout!")
-    res.redirect("/listings")
 
-    })
-}
+    req.flash("success", "You are logged out!");
+    res.redirect("/listings");
+  });
+};
 
-module.exports={signup,renderSignUp,login,renderLogin,logout}
+module.exports = {
+  signup,
+  renderSignUp,
+  login,
+  renderLogin,
+  logout,
+};
