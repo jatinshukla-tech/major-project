@@ -1,15 +1,15 @@
 const axios = require("axios");
-const Listing = require("../model/listing.js"); // ✅ correct path
+const Listing = require("../model/listing.js");
 
 // ============================
-// INDEX — SEARCH + CATEGORY
+// INDEX
 // ============================
-const index = async (req, res) => {
+
+module.exports.index = async (req, res) => {
   const { search, category } = req.query;
 
   let filter = {};
 
-  // 🔍 SEARCH
   if (search && search.trim() !== "") {
     filter.$or = [
       { title: { $regex: search, $options: "i" } },
@@ -18,7 +18,6 @@ const index = async (req, res) => {
     ];
   }
 
-  // 🏷️ CATEGORY
   if (category && category !== "") {
     filter.category = category;
   }
@@ -35,20 +34,24 @@ const index = async (req, res) => {
 // ============================
 // NEW FORM
 // ============================
-const renderNewForm = (req, res) => {
+
+module.exports.renderNewForm = (req, res) => {
   res.render("listings/new.ejs");
 };
 
 // ============================
 // SHOW
 // ============================
-const show = async (req, res) => {
+
+module.exports.show = async (req, res) => {
   const { id } = req.params;
 
   const listing = await Listing.findById(id)
     .populate({
       path: "reviews",
-      populate: { path: "author" },
+      populate: {
+        path: "author",
+      },
     })
     .populate("owner");
 
@@ -63,32 +66,31 @@ const show = async (req, res) => {
 // ============================
 // CREATE
 // ============================
-const create = async (req, res) => {
+
+module.exports.create = async (req, res) => {
   const location = req.body.listing.location;
 
-  // 🌍 FREE GEOLOCATION (OpenStreetMap)
   const geoRes = await axios.get(
-    `https://nominatim.openstreetmap.org/search`,
+    "https://nominatim.openstreetmap.org/search",
     {
       params: {
         format: "json",
         q: location,
       },
       headers: {
-        "User-Agent": "wanderlust-app", // REQUIRED by OSM
+        "User-Agent": "wanderlust-app",
       },
     }
   );
 
   if (!geoRes.data || geoRes.data.length === 0) {
-    req.flash("error", "Location not found on map");
+    req.flash("error", "Location not found");
     return res.redirect("/listings/new");
   }
 
   const lat = Number(geoRes.data[0].lat);
   const lng = Number(geoRes.data[0].lon);
 
-  // ✅ IMAGE CHECK (IMPORTANT)
   if (!req.file) {
     req.flash("error", "Image upload failed");
     return res.redirect("/listings/new");
@@ -97,8 +99,13 @@ const create = async (req, res) => {
   const { path: url, filename } = req.file;
 
   const newListing = new Listing(req.body.listing);
+
   newListing.owner = req.user._id;
-  newListing.image = { url, filename };
+  newListing.image = {
+    url,
+    filename,
+  };
+
   newListing.lat = lat;
   newListing.lng = lng;
 
@@ -109,10 +116,12 @@ const create = async (req, res) => {
 };
 
 // ============================
-// EDIT FORM
+// EDIT
 // ============================
-const edit = async (req, res) => {
+
+module.exports.edit = async (req, res) => {
   const { id } = req.params;
+
   const listing = await Listing.findById(id);
 
   if (!listing) {
@@ -120,18 +129,26 @@ const edit = async (req, res) => {
     return res.redirect("/listings");
   }
 
-  const previewImage = listing.image.url.replace(
-    "/upload",
-    "/upload/w_300"
-  );
+  let previewImage = listing.image.url;
 
-  res.render("listings/edit.ejs", { listing, previewImage });
+  if (previewImage) {
+    previewImage = previewImage.replace(
+      "/upload",
+      "/upload/w_300"
+    );
+  }
+
+  res.render("listings/edit.ejs", {
+    listing,
+    previewImage,
+  });
 };
 
 // ============================
 // UPDATE
 // ============================
-const update = async (req, res) => {
+
+module.exports.update = async (req, res) => {
   const { id } = req.params;
 
   let listing = await Listing.findByIdAndUpdate(
@@ -142,7 +159,12 @@ const update = async (req, res) => {
 
   if (req.file) {
     const { path: url, filename } = req.file;
-    listing.image = { url, filename };
+
+    listing.image = {
+      url,
+      filename,
+    };
+
     await listing.save();
   }
 
@@ -153,20 +175,12 @@ const update = async (req, res) => {
 // ============================
 // DELETE
 // ============================
-const removelisting = async (req, res) => {
+
+module.exports.removelisting = async (req, res) => {
   const { id } = req.params;
+
   await Listing.findByIdAndDelete(id);
 
   req.flash("success", "Listing Deleted!");
   res.redirect("/listings");
-};
-
-module.exports = {
-  index,
-  renderNewForm,
-  show,
-  create,
-  edit,
-  update,
-  removelisting,
 };

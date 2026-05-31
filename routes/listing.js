@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+
 const wrapAsync = require("../utils/wrapAsync.js");
 const { isLoggedIn, isOwner, validatelisting } = require("../middleware.js");
+
 const {
   index,
   renderNewForm,
@@ -9,16 +11,21 @@ const {
   create,
   edit,
   update,
-  removelisting
+  removelisting,
 } = require("../controllers/listing.js");
 
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
+
 const upload = multer({ storage });
+
+// =======================
+// ALL LISTINGS
+// =======================
 
 router
   .route("/")
-  .get(wrapAsync(index))   // ✅ SEARCH HANDLED HERE
+  .get(wrapAsync(index))
   .post(
     isLoggedIn,
     upload.single("listing[image]"),
@@ -26,9 +33,18 @@ router
     wrapAsync(create)
   );
 
+// =======================
+// NEW LISTING FORM
+// =======================
+
 router.get("/new", isLoggedIn, renderNewForm);
 
-router.route("/:id")
+// =======================
+// SINGLE LISTING
+// =======================
+
+router
+  .route("/:id")
   .get(wrapAsync(show))
   .put(
     isLoggedIn,
@@ -37,8 +53,21 @@ router.route("/:id")
     validatelisting,
     wrapAsync(update)
   )
-  .delete(isLoggedIn, isOwner, wrapAsync(removelisting));
+  .delete(
+    isLoggedIn,
+    isOwner,
+    wrapAsync(removelisting)
+  );
 
-router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(edit));
+// =======================
+// EDIT FORM
+// =======================
+
+router.get(
+  "/:id/edit",
+  isLoggedIn,
+  isOwner,
+  wrapAsync(edit)
+);
 
 module.exports = router;

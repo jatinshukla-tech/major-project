@@ -30,8 +30,13 @@ const bookingRoutes = require("./routes/booking.js");
 
 const dbUrl = process.env.ATLASDB_URL;
 
+if (!dbUrl) {
+  console.error("❌ ATLASDB_URL is missing");
+  process.exit(1);
+}
+
 console.log("NODE_ENV =", process.env.NODE_ENV);
-console.log("ATLASDB_URL =", dbUrl ? "Loaded Successfully" : "Undefined");
+console.log("ATLASDB_URL =", "Loaded Successfully");
 
 mongoose
   .connect(dbUrl)
@@ -55,9 +60,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // =======================
 
 const store = MongoStore.create({
-  mongoUrl: process.env.ATLASDB_URL,
+  mongoUrl: dbUrl,
   crypto: {
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "somesecret",
   },
   touchAfter: 24 * 3600,
 });
@@ -110,6 +115,11 @@ app.use((req, res, next) => {
 // ROUTES
 // =======================
 
+// Home Route
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
+
 app.use("/listings", listingsRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
 app.use("/", userRouter);
@@ -124,8 +134,13 @@ app.all("*", (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error(err);
+
   const { statusCode = 500, message = "Something went wrong" } = err;
-  res.status(statusCode).render("listings/error.ejs", { message });
+
+  res.status(statusCode).render("listings/error.ejs", {
+    message,
+  });
 });
 
 // =======================
